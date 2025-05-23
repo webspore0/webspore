@@ -1,0 +1,182 @@
+---
+---
+
+<header>
+  <h1>webspore</h1>
+  <nav>
+    <ul>
+      <li><a href="#about">about</a></li>
+      <li><a href="#projects">projects</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </nav>
+</header>
+<img src="" alt="" class="header-img" />
+<hr>
+<section id="about" class="section-wrapper">
+  <div class="section-text">
+    <h2>overview</h2>
+    <p>...</p>
+  </div>
+  <div class="section-img">
+    <img src="" alt="..." />
+  </div>
+</section>
+<hr>
+<section id="projects">
+  <h2>projects</h2>
+  <ul class="grid">
+    <li class="project">
+      <h3>...</h3>
+      <p>...</p>
+    </li>
+    <li class="project">
+      <h3>...</h3>
+      <p>...</p>
+    </li>
+    <li class="project">
+      <h3>...</h3>
+      <p>...</p>
+    </li>
+    <li class="project">
+      <h3>...</h3>
+      <p>...</p>
+    </li>
+  </ul>
+</section>
+<hr>
+<section id="contact">
+  <h2>contact</h2>
+  <p>email: <a href="mailto:info@websporelab.com">info@websporelab.com</a></p>
+</section>
+<footer>
+  <p>...</p>
+</footer>
+
+<style>
+body {
+  background: #0057b8;
+  color: #fff;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 12px;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 12px;
+}
+
+h1, h2, h3, p, nav, ul, li, a, section, footer {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 12px;
+}
+
+h1 {
+  font-size: 3rem;
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+nav {
+  margin-bottom: 0.5rem;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 1rem;
+}
+
+nav ul li {
+  display: inline;
+  margin: 0 1rem 0 0;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #000;
+  font-weight: bold;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.5);
+  margin: 2rem 0;
+}
+
+.section-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.section-text {
+  flex: 1;
+  padding-right: 2rem;
+}
+
+.section-img {
+  flex: 1;
+}
+
+.section-img img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.project {
+  background: rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+  transition: transform 0.3s;
+}
+
+.project:hover {
+  transform: translateY(-5px);
+}
+
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+a {
+  color: #000;
+  text-decoration: none;
+}
+
+a:hover, a:focus {
+  color: #fff;
+  text-decoration: underline;
+}
+
+::selection {
+  background: #fff;
+  color: #000;
+}
+
+.header-img {
+  display: block;
+  margin: 1rem 0;
+  width: 70%;
+  max-width: 70%;
+  height: auto;
+}
+</style>
