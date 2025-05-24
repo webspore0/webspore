@@ -1,192 +1,85 @@
 ---
 ---
 
-<header>
-  <h1>webspore</h1>
-  <nav>
-    <ul>
-      <li><a href="#about">about</a></li>
-      <li><a href="#projects">projects</a></li>
-      <li><a href="#contact">contact</a></li>
-    </ul>
-  </nav>
-</header>
-<img src="" alt="" class="header-img" />
-<hr>
-<section id="about" class="section-wrapper">
-  <div class="section-text">
-    <h2>overview</h2>
-    <p>...</p>
+<main class="ps-main">
+  <div class="ps-header">
+    <span class="ps-logo">PS</span> <span class="ps-path">C:\Users\webspore&gt;</span>
+    <span class="ps-cursor"></span>
   </div>
-  <div class="section-img">
-    <img src="" alt="..." />
+  <div class="ps-output">
+    <pre>
+Welcome to <b>webspore</b> [Version 1.0.0]
+(c) 2025 websporelab. All rights reserved.
+
+Type <span class="ps-cmd">help</span> to get started.
+    </pre>
   </div>
-</section>
-<hr>
-<section id="projects">
-  <h2>projects</h2>
-  <ul class="grid">
-    <li class="project">
-      <h3>...</h3>
-      <p>...</p>
-    </li>
-    <li class="project">
-      <h3>...</h3>
-      <p>...</p>
-    </li>
-    <li class="project">
-      <h3>...</h3>
-      <p>...</p>
-    </li>
-    <li class="project">
-      <h3>...</h3>
-      <p>...</p>
-    </li>
-  </ul>
-</section>
-<hr>
-<section id="contact">
-  <h2>contact</h2>
-  <p>email: <a href="mailto:info@websporelab.com">info@websporelab.com</a></p>
-</section>
+</main>
+
 <style>
 body {
-  background: #0057b8;
-  color: #fff;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 12px;
-}
-
-header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 12px;
-}
-
-h1, h2, h3, p, nav, ul, li, a, section, footer {
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 12px;
-}
-
-h1 {
-  font-size: 3rem;
+  background: #012456;
+  color: #d7eaff;
+  font-family: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 15px;
   margin: 0;
-  margin-bottom: 0.5rem;
+  min-height: 100vh;
 }
 
-nav {
-  margin-bottom: 0.5rem;
+.ps-main {
+  max-width: 700px;
+  margin: 4rem auto;
+  background: #001a36;
+  border-radius: 10px;
+  box-shadow: 0 0 24px #0008;
+  padding: 2.5rem 2rem 2rem 2rem;
 }
 
-nav ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+.ps-header {
   display: flex;
-  gap: 1rem;
-}
-
-nav ul li {
-  display: inline;
-  margin: 0 1rem 0 0;
-}
-
-nav ul li a {
-  text-decoration: none;
-  color: #000;
-  font-weight: bold;
-}
-
-hr {
-  border: 0;
-  height: 1px;
-  background: rgba(255,255,255,0.5);
-  margin: 2rem 0;
-}
-
-.section-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 4rem;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
 }
 
-.section-text {
-  flex: 1;
-  padding-right: 2rem;
+.ps-logo {
+  color: #00bcf2;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
 }
 
-.section-img {
-  flex: 1;
+.ps-path {
+  color: #d7eaff;
+  margin-right: 0.5rem;
 }
 
-.section-img img {
-  max-width: 100%;
-  border-radius: 8px;
+.ps-cursor {
+  width: 12px;
+  height: 1.2em;
+  background: #d7eaff;
+  display: inline-block;
+  animation: blink 1s steps(1) infinite;
+  margin-left: 2px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
-.project {
-  background: rgba(255,255,255,0.1);
-  padding: 1.5rem;
-  border-radius: 8px;
-  transition: transform 0.3s;
+.ps-output pre {
+  background: none;
+  color: #d7eaff;
+  font-family: inherit;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
 }
 
-.project:hover {
-  transform: translateY(-5px);
-}
-
-footer {
-  text-align: center;
-  padding: 2rem 0;
-  font-size: 0.9rem;
-  color: #fff;
-}
-
-a {
-  color: #000;
-  text-decoration: none;
-}
-
-a:hover, a:focus {
-  color: #fff;
-  text-decoration: underline;
-}
-
-::selection {
-  background: #fff;
-  color: #000;
-}
-
-.header-img {
-  display: block;
-  margin: 1rem 0;
-  width: 70%;
-  max-width: 70%;
-  height: auto;
-}
-
-.ascii-art {
-  color: rgba(255,255,255,0.08);
-  font-size: 7px;
-  line-height: 7px;
-  font-family: 'Consolas', 'Courier New', monospace;
-  white-space: pre;
-  user-select: none;
-  pointer-events: none;
-  text-align: center;
-  margin: 2rem 0 0 0;
-  overflow-x: auto;
-  max-width: 100vw;
+.ps-cmd {
+  color: #00ffea;
+  font-weight: bold;
 }
 </style>
