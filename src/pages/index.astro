@@ -10,14 +10,13 @@
   <div class="ps-header">
     <span class="ps-logo">PS</span>
     <span class="ps-path">C:\Users\webspore&gt;</span>
-    <span class="ps-cursor"></span>
   </div>
   <div class="ps-output">
     <pre>
 Welcome to <b>webspore</b> [Version 1.0.0]
-(c) 2025 websporelab. All rights reserved.
+(c) 2025 <a href="https://websporelab.com" tabindex="1" class="ps-link">websporelab</a>. All rights reserved.
 
-Type <span class="ps-cmd">help</span> to get started.
+Type <a href="#help" tabindex="2" class="ps-cmd ps-link">help</a> to get started.
 
 PS C:\Users\webspore&gt; <span class="ps-input">_</span>
     </pre>
@@ -114,5 +113,15 @@ body {
 .ps-cmd {
   color: #00ffea;
   font-weight: bold;
+}
+
+.ps-link {
+  color: #00ffea;
+  text-decoration: underline;
+  outline: none;
+}
+.ps-link:focus {
+  background: #003366;
+  border-radius: 3px;
 }
 </style>
