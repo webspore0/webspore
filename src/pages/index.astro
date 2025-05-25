@@ -2,8 +2,14 @@
 ---
 
 <main class="ps-main">
+  <div class="ps-window-bar">
+    <span class="ps-dot red"></span>
+    <span class="ps-dot yellow"></span>
+    <span class="ps-dot green"></span>
+  </div>
   <div class="ps-header">
-    <span class="ps-logo">PS</span> <span class="ps-path">C:\Users\webspore&gt;</span>
+    <span class="ps-logo">PS</span>
+    <span class="ps-path">C:\Users\webspore&gt;</span>
     <span class="ps-cursor"></span>
   </div>
   <div class="ps-output">
@@ -12,6 +18,8 @@ Welcome to <b>webspore</b> [Version 1.0.0]
 (c) 2025 websporelab. All rights reserved.
 
 Type <span class="ps-cmd">help</span> to get started.
+
+PS C:\Users\webspore&gt; <span class="ps-input">_</span>
     </pre>
   </div>
 </main>
@@ -29,11 +37,29 @@ body {
 .ps-main {
   max-width: 700px;
   margin: 4rem auto;
-  background: #001a36;
+  background: #012456;
   border-radius: 10px;
   box-shadow: 0 0 24px #0008;
   padding: 2.5rem 2rem 2rem 2rem;
+  border: 1.5px solid #003366;
+  position: relative;
 }
+
+.ps-window-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.7rem;
+  height: 12px;
+}
+.ps-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.ps-dot.red { background: #ff5f56; }
+.ps-dot.yellow { background: #ffbd2e; }
+.ps-dot.green { background: #27c93f; }
 
 .ps-header {
   display: flex;
@@ -54,13 +80,20 @@ body {
   margin-right: 0.5rem;
 }
 
-.ps-cursor {
+.ps-cursor, .ps-input {
   width: 12px;
   height: 1.2em;
   background: #d7eaff;
   display: inline-block;
   animation: blink 1s steps(1) infinite;
   margin-left: 2px;
+}
+
+.ps-input {
+  background: none;
+  color: #d7eaff;
+  border-bottom: 2px solid #d7eaff;
+  width: 10px;
 }
 
 @keyframes blink {
