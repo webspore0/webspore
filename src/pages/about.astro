@@ -1,0 +1,131 @@
+---
+---
+
+<main class="ps-main">
+  <div class="ps-window-bar">
+    <span class="ps-dot red"></span>
+    <span class="ps-dot yellow"></span>
+    <span class="ps-dot green"></span>
+  </div>
+  <div class="ps-header">
+    <span class="ps-logo">PS</span>
+    <span class="ps-path">C:\Users\webspore&gt;</span>
+  </div>
+  <div class="ps-output">
+    <pre>
+Welcome to <b>webspore</b> [Version 1.0.0]
+(c) 2025 <a href="https://websporelab.com" tabindex="1" class="ps-link">websporelab</a>. All rights reserved.
+
+Type <a href="#help" tabindex="2" class="ps-cmd ps-link">help</a> to get started.
+
+<a href="/about" tabindex="3" class="ps-link">about</a> &nbsp;
+<a href="/portfolio" tabindex="4" class="ps-link">portfolio</a> &nbsp;
+<a href="/contact" tabindex="5" class="ps-link">contact</a>
+
+PS C:\Users\webspore&gt; <span class="ps-input">_</span>
+    </pre>
+  </div>
+</main>
+
+<style>
+body {
+  background: #012456;
+  color: #d7eaff;
+  font-family: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 15px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.ps-main {
+  max-width: 700px;
+  margin: 4rem auto;
+  background: #012456;
+  border-radius: 10px;
+  box-shadow: 0 0 24px #0008;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border: 1.5px solid #003366;
+  position: relative;
+}
+
+.ps-window-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.7rem;
+  height: 12px;
+}
+.ps-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.ps-dot.red { background: #ff5f56; }
+.ps-dot.yellow { background: #ffbd2e; }
+.ps-dot.green { background: #27c93f; }
+
+.ps-header {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ps-logo {
+  color: #00bcf2;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.ps-path {
+  color: #d7eaff;
+  margin-right: 0.5rem;
+}
+
+.ps-cursor, .ps-input {
+  width: 12px;
+  height: 1.2em;
+  background: #d7eaff;
+  display: inline-block;
+  animation: blink 1s steps(1) infinite;
+  margin-left: 2px;
+}
+
+.ps-input {
+  background: none;
+  color: #d7eaff;
+  border-bottom: 2px solid #d7eaff;
+  width: 10px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.ps-output pre {
+  background: none;
+  color: #d7eaff;
+  font-family: inherit;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+}
+
+.ps-cmd {
+  color: #00ffea;
+  font-weight: bold;
+}
+
+.ps-link {
+  color: #00ffea;
+  text-decoration: underline;
+  outline: none;
+}
+.ps-link:focus {
+  background: #003366;
+  border-radius: 3px;
+}
+</style>
