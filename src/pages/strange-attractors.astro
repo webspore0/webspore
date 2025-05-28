@@ -66,111 +66,159 @@
     <div id="equations"></div>
 
     <script type="module">
-    window.addEventListener('load', () => {
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
-      let width = canvas.width = window.innerWidth;
-      let height = canvas.height = window.innerHeight;
+    // Basic vector math
+    function add(a, b) { return { x: a.x + b.x, y: a.y + b.y, z: (a.z||0) + (b.z||0) }; }
+    function scale(v, s) { return { x: v.x * s, y: v.y * s, z: (v.z||0) * s }; }
 
-      // Get controls
-      const attractorSelect = document.getElementById('attractor');
-      const speedInput = document.getElementById('speed');
-      const equationsDiv = document.getElementById('equations');
+    // RK4 integrator
+    function rk4(state, derivs, dt) {
+      const k1 = derivs(state);
+      const k2 = derivs(add(state, scale(k1, dt * 0.5)));
+      const k3 = derivs(add(state, scale(k2, dt * 0.5)));
+      const k4 = derivs(add(state, scale(k3, dt)));
+      const sum = add(add(k1, scale(k2,2)), add(scale(k3,2), k4));
+      return add(state, scale(sum, dt/6));
+    }
 
-      window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-      });
-
-      // Particle class
-      class Particle {
-        constructor(x, y) {
-          this.x = x;
-          this.y = y;
-          this.vx = (Math.random() - 0.5) * 2;
-          this.vy = (Math.random() - 0.5) * 2;
-          this.size = Math.random() * 3 + 1;
-          this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
-        }
-
-        update(attractors) {
-          // Apply attraction forces
-          attractors.forEach(a => {
-            const dx = a.x - this.x;
-            const dy = a.y - this.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const force = (a.strength || 200) / (dist * dist + 100);
-            this.vx += force * dx;
-            this.vy += force * dy;
-          });
-
-          // Move
-          this.x += this.vx;
-          this.y += this.vy;
-
-          // Slow down
-          this.vx *= 0.98;
-          this.vy *= 0.98;
-
-          // Bounce off edges
-          if (this.x < 0 || this.x > width) {
-            this.vx *= -1;
-            this.x = Math.max(0, Math.min(this.x, width));
-          }
-          if (this.y < 0 || this.y > height) {
-            this.vy *= -1;
-            this.y = Math.max(0, Math.min(this.y, height));
-          }
-        }
-
-        draw(ctx) {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx.fillStyle = this.color;
-          ctx.fill();
-        }
+    class Particle {
+      constructor(x,y,z) { this.state={x,y,z}; this.trail=[]; }
+      update(derivs, dt) {
+        this.state = rk4(this.state, derivs, dt);
+        this.trail.push({...this.state});
+        if(this.trail.length>100) this.trail.shift();
       }
+    }
 
-      // Setup
-      const particles = [];
-      const attractors = [{ x: width / 2, y: height / 2, strength: 100 }];
-      const PARTICLE_COUNT = 300;
+    // Canvas setup
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+    let zoom = 1.0, panX = 0, panY = 0; // Reset zoom/pan on resize
 
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        particles.push(new Particle(Math.random() * width, Math.random() * height));
-      }
+    // Attractor parameters
+    const params = {
+      lorenz: { sigma: 10, rho: 28, beta: 8/3 },
+      rossler: { a: 0.2, b: 0.2, c: 5.7 },
+      chen:   { a: 35, b: 3, c: 28 }
+    };
+    const dt = 0.01; // Increased from 0.005 for faster particle movement
+    let particles = [];
 
-      // Interaction
-      canvas.addEventListener('mousemove', e => {
-        const rect = canvas.getBoundingClientRect();
-        attractors[0] = { x: e.clientX - rect.left, y: e.clientY - rect.top, strength: 100 };
-      });
-      canvas.addEventListener('click', e => {
-        const rect = canvas.getBoundingClientRect();
-        attractors.push({ x: e.clientX - rect.left, y: e.clientY - rect.top, strength: -200 });
-        setTimeout(() => attractors.pop(), 1000);
-      });
-      window.addEventListener('keydown', e => {
-        if (e.key === 'r') {
-          particles.length = 0;
-          for (let i = 0; i < PARTICLE_COUNT; i++) {
-            particles.push(new Particle(Math.random() * width, Math.random() * height));
-          }
-        }
-      });
+    // Attractor definitions
+    function lorenz(s) {
+      const {sigma,rho,beta}=params.lorenz;
+      return { x: sigma*(s.y-s.x), y: s.x*(rho-s.z)-s.y, z: s.x*s.y-beta*s.z };
+    }
+    function rossler(s) {
+      const {a,b,c}=params.rossler;
+      return { x: -s.y-s.z, y: s.x+a*s.y, z: b+s.z*(s.x-c) };
+    }
+    function chen(s) {
+      const {a,b,c}=params.chen;
+      // Reduce speed for Chen attractor by scaling derivatives
+      const scaleDown = 0.3; // Lower = slower
+      return {
+        x: scaleDown * (a*(s.y-s.x)),
+        y: scaleDown * ((c-a)*s.x - s.x*s.z + c*s.y),
+        z: scaleDown * (s.x*s.y - b*s.z)
+      };
+    }
 
-      // Animation loop
-      function animate() {
-        ctx.clearRect(0, 0, width, height);
-        particles.forEach(p => {
-          p.update(attractors);
-          p.draw(ctx);
-        });
-        requestAnimationFrame(animate);
-      }
+    // Equations display
+    const eqs = {
+      lorenz: `dx/dt = σ(y - x)\ndy/dt = x(ρ - z) - y\ndz/dt = xy - βz`,
+      rossler: `dx/dt = -y - z\ndy/dt = x + a y\ndz/dt = b + z(x - c)`,
+      chen: `dx/dt = a(y - x)\ndy/dt = (c - a)x - xz + cy\ndz/dt = xy - b z`
+    };
+    function updateEquations() {
+      document.getElementById('equations').innerText = eqs[document.getElementById('attractor').value];
+    }
 
-      animate();
+    // Isometric projection with optional Lorenz shift
+    function project(pt, choice) {
+      const scale = 10 * zoom;
+      let x = (pt.x - pt.z) * scale + W/2 + panX;
+      let y = (pt.x + 2*pt.y + pt.z) * scale/Math.sqrt(6) + H/2 + panY;
+      if(choice === 'lorenz') x += W * 0.1 * zoom; // shift right
+      return { x, y };
+    }
+
+    // Zoom and pan controls
+    let isDragging = false, lastX = 0, lastY = 0;
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const mouseX = e.offsetX, mouseY = e.offsetY;
+      const prevZoom = zoom;
+      zoom *= e.deltaY < 0 ? 1.1 : 0.9;
+      zoom = Math.max(0.1, Math.min(zoom, 10));
+      // Adjust pan so zoom is centered on mouse
+      panX = (panX - W/2) * (zoom/prevZoom) + W/2 + (mouseX-W/2)*(1-zoom/prevZoom);
+      panY = (panY - H/2) * (zoom/prevZoom) + H/2 + (mouseY-H/2)*(1-zoom/prevZoom);
     });
+    canvas.addEventListener('mousedown', e => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+    window.addEventListener('mousemove', e => {
+      if(isDragging) {
+        panX += e.clientX - lastX;
+        panY += e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Initialize 3D grid (grid size increased by 2 => from 6 to 8)
+    function initGrid(g=8, sp=0.15) {
+      particles = [];
+      const off = (g - 1) / 2;
+      for(let i=0; i<g; i++)
+        for(let j=0; j<g; j++)
+          for(let k=0; k<g; k++)
+            particles.push(new Particle((i-off)*sp, (j-off)*sp, (k-off)*sp));
+    }
+    initGrid();
+
+    // Main loop
+    let speed = 1;
+    document.getElementById('speed').addEventListener('input', e => {
+      speed = parseFloat(e.target.value);
+    });
+    function draw() {
+      ctx.fillStyle = 'rgba(0,0,0,0.1)';
+      ctx.fillRect(0,0,W,H);
+      const choice = document.getElementById('attractor').value;
+      const derivs = { lorenz, rossler, chen }[choice];
+
+      particles.forEach(p => {
+        p.update(derivs, dt * speed);
+        ctx.beginPath();
+        p.trail.forEach((pt,i) => {
+          const { x, y } = project(pt, choice);
+          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        });
+        const hue = (p.state.z * 20 + 200) % 360;
+        ctx.strokeStyle = `hsla(${hue},100%,60%,0.6)`;
+        ctx.stroke();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    // Bind changes
+    document.getElementById('attractor').addEventListener('change', () => {
+      updateEquations();
+      initGrid();
+    });
+
+    // Initial setup
+    updateEquations();
+    draw();
     </script>
   </body>
 </html>
