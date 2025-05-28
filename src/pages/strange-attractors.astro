@@ -1,0 +1,73 @@
+---
+// No frontmatter needed for this conversion
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Grid Particle Attractor Simulation</title>
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+        overflow: hidden;
+      }
+      #controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 5px;
+        border-radius: 5px;
+        color: #fff;
+        font-family: sans-serif;
+        z-index: 10;
+      }
+      #controls select {
+        font-size: 0.9em;
+      }
+      #equations {
+        position: absolute;
+        top: 50px;
+        left: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: monospace;
+        font-size: 0.8em;
+        line-height: 1.2em;
+        white-space: pre;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div id="controls">
+      <label style="color: #fff;">
+        Attractor:
+        <select id="attractor">
+          <option value="lorenz">Lorenz</option>
+          <option value="rossler">Rössler</option>
+          <option value="chen">Chen</option>
+        </select>
+      </label>
+      <label style="color: #fff; margin-left: 10px;">
+        Speed:
+        <input
+          type="range"
+          id="speed"
+          min="0.1"
+          max="3"
+          step="0.01"
+          value="1"
+          style="vertical-align: middle;"
+        />
+      </label>
+    </div>
+    <div id="equations"></div>
+
+    <script>
+      // JavaScript from the HTML page goes here
+      // (paste in the full <script> block from your original HTML)
+    </script>
+  </body>
+</html>
