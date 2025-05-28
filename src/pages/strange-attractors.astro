@@ -66,8 +66,104 @@
     <div id="equations"></div>
 
     <script>
-      // JavaScript from the HTML page goes here
-      // (paste in the full <script> block from your original HTML)
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    // Particle class
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.size = Math.random() * 3 + 1;
+        this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+      }
+
+      update(attractors) {
+        // Apply attraction forces
+        attractors.forEach(a => {
+          const dx = a.x - this.x;
+          const dy = a.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const force = (a.strength || 200) / (dist * dist + 100);
+          this.vx += force * dx;
+          this.vy += force * dy;
+        });
+
+        // Move
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Slow down
+        this.vx *= 0.98;
+        this.vy *= 0.98;
+
+        // Bounce off edges
+        if (this.x < 0 || this.x > width) {
+          this.vx *= -1;
+          this.x = Math.max(0, Math.min(this.x, width));
+        }
+        if (this.y < 0 || this.y > height) {
+          this.vy *= -1;
+          this.y = Math.max(0, Math.min(this.y, height));
+        }
+      }
+
+      draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+    // Setup
+    const particles = [];
+    const attractors = [{ x: width / 2, y: height / 2, strength: 100 }];
+    const PARTICLE_COUNT = 300;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push(new Particle(Math.random() * width, Math.random() * height));
+    }
+
+    // Interaction
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      attractors[0] = { x: e.clientX - rect.left, y: e.clientY - rect.top, strength: 100 };
+    });
+    canvas.addEventListener('click', e => {
+      const rect = canvas.getBoundingClientRect();
+      attractors.push({ x: e.clientX - rect.left, y: e.clientY - rect.top, strength: -200 });
+      setTimeout(() => attractors.pop(), 1000);
+    });
+    window.addEventListener('keydown', e => {
+      if (e.key === 'r') {
+        particles.length = 0;
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          particles.push(new Particle(Math.random() * width, Math.random() * height));
+        }
+      }
+    });
+
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.update(attractors);
+        p.draw(ctx);
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
     </script>
   </body>
 </html>
