@@ -44,11 +44,16 @@
     controls.innerHTML = `
       <label>Width: <input id="widthInput" type="number" min="10" max="300" value="150" style="width:60px;"></label>
       <label>Height: <input id="heightInput" type="number" min="5" max="120" value="60" style="width:60px;"></label>
-      <label>Shape: <select id="shapeSelect">
+      <label>Frame Mask: <select id="shapeSelect">
         <option value="none">None</option>
         <option value="circle">Circle</option>
         <option value="square">Square</option>
         <option value="diamond">Diamond</option>
+      </select></label>
+      <label>Wave Shape: <select id="waveShapeSelect">
+        <option value="sine">Sine</option>
+        <option value="square">Square</option>
+        <option value="triangle">Triangle</option>
       </select></label>
     `;
     document.body.appendChild(controls);
@@ -56,7 +61,9 @@
     const widthInput = document.getElementById('widthInput');
     const heightInput = document.getElementById('heightInput');
     const shapeSelect = document.getElementById('shapeSelect');
+    const waveShapeSelect = document.getElementById('waveShapeSelect');
     let shape = 'none';
+    let waveShape = 'sine';
 
     widthInput.addEventListener('input', () => {
       width = Math.max(10, Math.min(300, parseInt(widthInput.value) || 150));
@@ -66,6 +73,9 @@
     });
     shapeSelect.addEventListener('change', () => {
       shape = shapeSelect.value;
+    });
+    waveShapeSelect.addEventListener('change', () => {
+      waveShape = waveShapeSelect.value;
     });
 
     // Center the ASCII art
@@ -106,6 +116,13 @@
       return true; // 'none' shape
     }
 
+    function applyWaveShape(val) {
+      if (waveShape === 'sine') return Math.sin(val);
+      if (waveShape === 'square') return Math.sign(Math.sin(val));
+      if (waveShape === 'triangle') return 2 * Math.abs(2 * (val / (2 * Math.PI) - Math.floor(val / (2 * Math.PI) + 0.5))) - 1;
+      return Math.sin(val);
+    }
+
     function generateFrame() {
       let frame = "";
       let grid = Array.from({ length: height }, () => Array(width).fill(" "));
@@ -137,13 +154,13 @@
           let interpIdx = prevIdx + (avgNeighborIdx - prevIdx) * t;
 
           // Psychedelic multi-layered modulation
-          let mod1 = Math.sin(now * 0.7 + x * 0.04 - y * 0.03);
-          let mod2 = Math.cos(now * 2.1 + x * 0.09 + y * 0.13);
-          let mod3 = Math.sin(now * 1.7 + x * 0.13 - y * 0.11 + Math.cos(now * 0.5 + x * 0.07));
-          let mod4 = Math.sin((x + y) * 0.05 + now * 3 + Math.cos(x * 0.03 - y * 0.02 + now));
-          let wave = Math.sin(
+          let mod1 = applyWaveShape(now * 0.7 + x * 0.04 - y * 0.03);
+          let mod2 = applyWaveShape(now * 2.1 + x * 0.09 + y * 0.13);
+          let mod3 = applyWaveShape(now * 1.7 + x * 0.13 - y * 0.11 + applyWaveShape(now * 0.5 + x * 0.07));
+          let mod4 = applyWaveShape((x + y) * 0.05 + now * 3 + applyWaveShape(x * 0.03 - y * 0.02 + now));
+          let wave = applyWaveShape(
             (x / 12) + (y / 7) + now * 1.2
-            + Math.sin(now + x * 0.03 + y * 0.04)
+            + applyWaveShape(now + x * 0.03 + y * 0.04)
             + mod1 * 1.5
             + mod2 * 1.2
             + mod3 * 0.7
