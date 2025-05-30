@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Real-Time ASCII Art</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: monospace;
+      font-size: 8px;
+      white-space: pre;
+      overflow: hidden;
+    }
+    #ascii {
+      line-height: 1em;
+    }
+  </style>
+</head>
+<body>
+  <pre id="ascii"></pre>
+
+  <script>
+    const asciiElement = document.getElementById("ascii");
+    let width = 150;   // Keep low for performance in browser
+    let height = 60;
+    const chars = "@%#*+=-:. "; // Brightness levels
+
+    // Store previous frame for smooth transitions
+    let prevGrid = null;
+
+    // Add controls for grid size
+    const controls = document.createElement('div');
+    controls.style.position = 'fixed';
+    controls.style.top = '10px';
+    controls.style.left = '50%';
+    controls.style.transform = 'translateX(-50%)';
+    controls.style.zIndex = '10';
+    controls.style.background = 'rgba(0,0,0,0.7)';
+    controls.style.padding = '8px 16px';
+    controls.style.borderRadius = '8px';
+    controls.style.color = 'white';
+    controls.innerHTML = `
+      <label>Width: <input id="widthInput" type="number" min="10" max="300" value="150" style="width:60px;"></label>
+      <label>Height: <input id="heightInput" type="number" min="5" max="120" value="60" style="width:60px;"></label>
+    `;
+    document.body.appendChild(controls);
+
+    const widthInput = document.getElementById('widthInput');
+    const heightInput = document.getElementById('heightInput');
+    widthInput.addEventListener('input', () => {
+      width = Math.max(10, Math.min(300, parseInt(widthInput.value) || 150));
+    });
+    heightInput.addEventListener('input', () => {
+      height = Math.max(5, Math.min(120, parseInt(heightInput.value) || 60));
+    });
+
+    // Center the ASCII art
+    asciiElement.style.position = 'absolute';
+    asciiElement.style.top = '50%';
+    asciiElement.style.left = '50%';
+    asciiElement.style.transform = 'translate(-50%, -50%)';
+    asciiElement.style.margin = '0';
+
+    function getRandomChar() {
+      return chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    function lerpChar(a, b, t) {
+      // Interpolate between two chars by their index in chars
+      const ia = chars.indexOf(a);
+      const ib = chars.indexOf(b);
+      const idx = Math.round(ia + (ib - ia) * t);
+      return chars[Math.max(0, Math.min(chars.length - 1, idx))];
+    }
+
+    function generateFrame() {
+      let frame = "";
+      let grid = Array.from({ length: height }, () => Array(width).fill(" "));
+      const now = Date.now() / 1000; // seconds for animation
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          // Use previous frame for smoothness
+          let prevChar = prevGrid && prevGrid[y] && prevGrid[y][x] ? prevGrid[y][x] : getRandomChar();
+
+          // Blend with neighbors for organic flow
+          let neighborIndices = [];
+          if (prevGrid) {
+            if (y > 0) neighborIndices.push(chars.indexOf(prevGrid[y - 1][x]));
+            if (x > 0) neighborIndices.push(chars.indexOf(prevGrid[y][x - 1]));
+            if (y < height - 1) neighborIndices.push(chars.indexOf(prevGrid[y + 1][x]));
+            if (x < width - 1) neighborIndices.push(chars.indexOf(prevGrid[y][x + 1]));
+          }
+          let prevIdx = chars.indexOf(prevChar);
+          let avgNeighborIdx = neighborIndices.length
+            ? neighborIndices.reduce((a, b) => a + b, 0) / neighborIndices.length
+            : prevIdx;
+
+          // Interpolate between prevChar and average neighbor index
+          let t = 0.5 + 0.3 * Math.random(); // blend more with neighbors
+          let interpIdx = prevIdx + (avgNeighborIdx - prevIdx) * t;
+
+          // Psychedelic multi-layered modulation
+          let mod1 = Math.sin(now * 0.7 + x * 0.04 - y * 0.03);
+          let mod2 = Math.cos(now * 2.1 + x * 0.09 + y * 0.13);
+          let mod3 = Math.sin(now * 1.7 + x * 0.13 - y * 0.11 + Math.cos(now * 0.5 + x * 0.07));
+          let mod4 = Math.sin((x + y) * 0.05 + now * 3 + Math.cos(x * 0.03 - y * 0.02 + now));
+          let wave = Math.sin(
+            (x / 12) + (y / 7) + now * 1.2
+            + Math.sin(now + x * 0.03 + y * 0.04)
+            + mod1 * 1.5
+            + mod2 * 1.2
+            + mod3 * 0.7
+            + mod4 * 0.5
+          );
+          // Map wave from [-1,1] to [-2.5,2.5] for stronger effect
+          wave *= 2.5;
+
+          // Occasionally invert brightness for unpredictability
+          let invert = Math.random() < 0.04 ? -1 : 1;
+
+          // Apply wave and inversion to brightness index
+          let waveIdx = Math.round(interpIdx + wave * invert);
+
+          // Add sparkle: random chance to use brightest or darkest char
+          let sparkle = Math.random();
+          let baseChar;
+          if (sparkle < 0.01) {
+            baseChar = chars[0]; // brightest
+          } else if (sparkle > 0.99) {
+            baseChar = chars[chars.length - 1]; // darkest
+          } else {
+            baseChar = chars[Math.max(0, Math.min(chars.length - 1, waveIdx))];
+          }
+
+          // Occasionally introduce new randomness
+          if (Math.random() < 0.08) {
+            baseChar = getRandomChar();
+          }
+
+          grid[y][x] = baseChar;
+        }
+      }
+      prevGrid = grid;
+      for (let y = 0; y < height; y++) {
+        frame += grid[y].join("") + "\n";
+      }
+      asciiElement.textContent = frame;
+    }
+
+    // Initialize prevGrid with random chars
+    function initPrevGrid() {
+      prevGrid = Array.from({ length: height }, () =>
+        Array.from({ length: width }, () => getRandomChar())
+      );
+    }
+
+    // Reinitialize prevGrid when size changes
+    widthInput.addEventListener('input', () => {
+      width = Math.max(10, Math.min(300, parseInt(widthInput.value) || 150));
+      initPrevGrid();
+    });
+    heightInput.addEventListener('input', () => {
+      height = Math.max(5, Math.min(120, parseInt(heightInput.value) || 60));
+      initPrevGrid();
+    });
+
+    initPrevGrid();
+
+    // Use requestAnimationFrame for animation, throttled to 20fps
+    let lastFrameTime = 0;
+    function animate(now) {
+      if (!lastFrameTime || now - lastFrameTime >= 50) { // ~20fps
+        generateFrame();
+        lastFrameTime = now;
+      }
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
