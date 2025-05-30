@@ -9,7 +9,7 @@
       background: black;
       color: white;
       font-family: monospace;
-      font-size: 8px;
+      font-size: px;
       white-space: pre;
       overflow: hidden;
     }
@@ -58,10 +58,10 @@
     `;
     document.body.appendChild(controls);
 
-    const widthInput = document.getElementById('widthInput');
-    const heightInput = document.getElementById('heightInput');
-    const shapeSelect = document.getElementById('shapeSelect');
-    const waveShapeSelect = document.getElementById('waveShapeSelect');
+    const widthInput = document.getElementById('widthInput') as HTMLInputElement;
+    const heightInput = document.getElementById('heightInput') as HTMLInputElement;
+    const shapeSelect = document.getElementById('shapeSelect') as HTMLSelectElement;
+    const waveShapeSelect = document.getElementById('waveShapeSelect') as HTMLSelectElement;
     let shape = 'none';
     let waveShape = 'sine';
 
