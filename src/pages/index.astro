@@ -1,129 +1,173 @@
----
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Real-Time ASCII Art</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: monospace;
+      font-size: px;
+      white-space: pre;
+      overflow: hidden;
+    }
+    #ascii {
+      line-height: 1em;
+    }
+  </style>
+</head>
+<body>
+  <pre id="ascii"></pre>
 
-<main class="ps-main">
-  <div class="ps-window-bar">
-    <span class="ps-dot red"></span>
-    <span class="ps-dot yellow"></span>
-    <span class="ps-dot green"></span>
-  </div>
-  <div class="ps-header">
-    <span class="ps-logo">PS</span>
-    <span class="ps-path">C:\Users\webspore&gt;</span>
-  </div>
-  <div class="ps-output">
-    <pre>
-Welcome to <b>webspore</b> [Version 1.0.0]
-(c) 2025 <a href="https://websporelab.com" tabindex="1" class="ps-link">websporelab</a>. All rights reserved.
+  <script>
+    const asciiElement = document.getElementById("ascii");
+    let width = 150;   // Keep low for performance in browser
+    let height = 60;
+    const chars = "@%#*+=-:. "; // Brightness levels
 
-Type <a href="#help" tabindex="2" class="ps-cmd ps-link">help</a> to get started.
+    // Store previous frame for smooth transitions
+    let prevGrid = null;
 
-<a href="/about" tabindex="3" class="ps-link">about</a> &nbsp;
-<a href="/port" tabindex="4" class="ps-link">portfolio</a> &nbsp;
-<a href="/contact" tabindex="5" class="ps-link">contact</a>
-    </pre>
-  </div>
-</main>
+    // Remove controls and dropdowns, set shape to 'diamond' by default
+    let shape = 'diamond';
+    let waveShape = 'sine'; // Keep default for wave effect
 
-<style>
-body {
-  background: #012456;
-  color: #d7eaff;
-  font-family: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 15px;
-  margin: 0;
-  min-height: 100vh;
-}
+    // Center the ASCII art
+    asciiElement.style.position = 'absolute';
+    asciiElement.style.top = '50%';
+    asciiElement.style.left = '50%';
+    asciiElement.style.transform = 'translate(-50%, -50%)';
+    asciiElement.style.margin = '0';
 
-.ps-main {
-  max-width: 700px;
-  margin: 4rem auto;
-  background: #012456;
-  border-radius: 10px;
-  box-shadow: 0 0 24px #0008;
-  padding: 2.5rem 2rem 2rem 2rem;
-  border: 1.5px solid #003366;
-  position: relative;
-}
+    function getRandomChar() {
+      return chars[Math.floor(Math.random() * chars.length)];
+    }
 
-.ps-window-bar {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 0.7rem;
-  height: 12px;
-}
-.ps-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.ps-dot.red { background: #ff5f56; }
-.ps-dot.yellow { background: #ffbd2e; }
-.ps-dot.green { background: #27c93f; }
+    function lerpChar(a, b, t) {
+      // Interpolate between two chars by their index in chars
+      const ia = chars.indexOf(a);
+      const ib = chars.indexOf(b);
+      const idx = Math.round(ia + (ib - ia) * t);
+      return chars[Math.max(0, Math.min(chars.length - 1, idx))];
+    }
 
-.ps-header {
-  display: flex;
-  align-items: center;
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-}
+    function isInShape(x, y) {
+      // Center coordinates
+      const cx = width / 2;
+      const cy = height / 2;
+      const dx = x - cx + 0.5;
+      const dy = y - cy + 0.5;
+      // Only diamond shape
+      const d = Math.min(width, height) * 0.65 / 2;
+      return Math.abs(dx) + Math.abs(dy) <= d;
+    }
 
-.ps-logo {
-  color: #00bcf2;
-  font-weight: bold;
-  margin-right: 0.5rem;
-  font-size: 1.2rem;
-}
+    function applyWaveShape(val) {
+      if (waveShape === 'sine') return Math.sin(val);
+      if (waveShape === 'square') return Math.sign(Math.sin(val));
+      if (waveShape === 'triangle') return 2 * Math.abs(2 * (val / (2 * Math.PI) - Math.floor(val / (2 * Math.PI) + 0.5))) - 1;
+      return Math.sin(val);
+    }
 
-.ps-path {
-  color: #d7eaff;
-  margin-right: 0.5rem;
-}
+    function generateFrame() {
+      let frame = "";
+      let grid = Array.from({ length: height }, () => Array(width).fill(" "));
+      const now = Date.now() / 1000; // seconds for animation
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (!isInShape(x, y)) {
+            grid[y][x] = ' ';
+            continue;
+          }
+          // Use previous frame for smoothness
+          let prevChar = prevGrid && prevGrid[y] && prevGrid[y][x] ? prevGrid[y][x] : getRandomChar();
 
-.ps-cursor, .ps-input {
-  width: 12px;
-  height: 1.2em;
-  background: #d7eaff;
-  display: inline-block;
-  animation: blink 1s steps(1) infinite;
-  margin-left: 2px;
-}
+          // Blend with neighbors for organic flow
+          let neighborIndices = [];
+          if (prevGrid) {
+            if (y > 0) neighborIndices.push(chars.indexOf(prevGrid[y - 1][x]));
+            if (x > 0) neighborIndices.push(chars.indexOf(prevGrid[y][x - 1]));
+            if (y < height - 1) neighborIndices.push(chars.indexOf(prevGrid[y + 1][x]));
+            if (x < width - 1) neighborIndices.push(chars.indexOf(prevGrid[y][x + 1]));
+          }
+          let prevIdx = chars.indexOf(prevChar);
+          let avgNeighborIdx = neighborIndices.length
+            ? neighborIndices.reduce((a, b) => a + b, 0) / neighborIndices.length
+            : prevIdx;
 
-.ps-input {
-  background: none;
-  color: #d7eaff;
-  border-bottom: 2px solid #d7eaff;
-  width: 10px;
-}
+          // Interpolate between prevChar and average neighbor index
+          let t = 0.5 + 0.3 * Math.random(); // blend more with neighbors
+          let interpIdx = prevIdx + (avgNeighborIdx - prevIdx) * t;
 
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
+          // Psychedelic multi-layered modulation
+          let mod1 = applyWaveShape(now * 0.7 + x * 0.04 - y * 0.03);
+          let mod2 = applyWaveShape(now * 2.1 + x * 0.09 + y * 0.13);
+          let mod3 = applyWaveShape(now * 1.7 + x * 0.13 - y * 0.11 + applyWaveShape(now * 0.5 + x * 0.07));
+          let mod4 = applyWaveShape((x + y) * 0.05 + now * 3 + applyWaveShape(x * 0.03 - y * 0.02 + now));
+          let wave = applyWaveShape(
+            (x / 12) + (y / 7) + now * 1.2
+            + applyWaveShape(now + x * 0.03 + y * 0.04)
+            + mod1 * 1.5
+            + mod2 * 1.2
+            + mod3 * 0.7
+            + mod4 * 0.5
+          );
+          // Map wave from [-1,1] to [-2.5,2.5] for stronger effect
+          wave *= 2.5;
 
-.ps-output pre {
-  background: none;
-  color: #d7eaff;
-  font-family: inherit;
-  font-size: 1rem;
-  margin: 0;
-  padding: 0;
-  white-space: pre-wrap;
-}
+          // Occasionally invert brightness for unpredictability
+          let invert = Math.random() < 0.04 ? -1 : 1;
 
-.ps-cmd {
-  color: #00ffea;
-  font-weight: bold;
-}
+          // Apply wave and inversion to brightness index
+          let waveIdx = Math.round(interpIdx + wave * invert);
 
-.ps-link {
-  color: #00ffea;
-  text-decoration: underline;
-  outline: none;
-}
-.ps-link:focus {
-  background: #003366;
-  border-radius: 3px;
-}
-</style>
+          // Add sparkle: random chance to use brightest or darkest char
+          let sparkle = Math.random();
+          let baseChar;
+          if (sparkle < 0.01) {
+            baseChar = chars[0]; // brightest
+          } else if (sparkle > 0.99) {
+            baseChar = chars[chars.length - 1]; // darkest
+          } else {
+            baseChar = chars[Math.max(0, Math.min(chars.length - 1, waveIdx))];
+          }
+
+          // Occasionally introduce new randomness
+          if (Math.random() < 0.08) {
+            baseChar = getRandomChar();
+          }
+
+          grid[y][x] = baseChar;
+        }
+      }
+      prevGrid = grid;
+      for (let y = 0; y < height; y++) {
+        frame += grid[y].join("") + "\n";
+      }
+      asciiElement.textContent = frame;
+    }
+
+    // Initialize prevGrid with random chars
+    function initPrevGrid() {
+      prevGrid = Array.from({ length: height }, () =>
+        Array.from({ length: width }, () => getRandomChar())
+      );
+    }
+
+    initPrevGrid();
+
+    // Use requestAnimationFrame for animation, throttled to 20fps
+    let lastFrameTime = 0;
+    function animate(now) {
+      if (!lastFrameTime || now - lastFrameTime >= 50) { // ~20fps
+        generateFrame();
+        lastFrameTime = now;
+      }
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
