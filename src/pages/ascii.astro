@@ -30,53 +30,9 @@
     // Store previous frame for smooth transitions
     let prevGrid = null;
 
-    // Add controls for grid size
-    const controls = document.createElement('div');
-    controls.style.position = 'fixed';
-    controls.style.top = '10px';
-    controls.style.left = '50%';
-    controls.style.transform = 'translateX(-50%)';
-    controls.style.zIndex = '10';
-    controls.style.background = 'rgba(0,0,0,0.7)';
-    controls.style.padding = '8px 16px';
-    controls.style.borderRadius = '8px';
-    controls.style.color = 'white';
-    controls.innerHTML = `
-      <label>Width: <input id="widthInput" type="number" min="10" max="300" value="150" style="width:60px;"></label>
-      <label>Height: <input id="heightInput" type="number" min="5" max="120" value="60" style="width:60px;"></label>
-      <label>Frame Mask: <select id="shapeSelect">
-        <option value="none">None</option>
-        <option value="circle">Circle</option>
-        <option value="square">Square</option>
-        <option value="diamond">Diamond</option>
-      </select></label>
-      <label>Wave Shape: <select id="waveShapeSelect">
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="triangle">Triangle</option>
-      </select></label>
-    `;
-    document.body.appendChild(controls);
-
-    const widthInput = document.getElementById('widthInput') as HTMLInputElement;
-    const heightInput = document.getElementById('heightInput') as HTMLInputElement;
-    const shapeSelect = document.getElementById('shapeSelect') as HTMLSelectElement;
-    const waveShapeSelect = document.getElementById('waveShapeSelect') as HTMLSelectElement;
-    let shape = 'none';
-    let waveShape = 'sine';
-
-    widthInput.addEventListener('input', () => {
-      width = Math.max(10, Math.min(300, parseInt(widthInput.value) || 150));
-    });
-    heightInput.addEventListener('input', () => {
-      height = Math.max(5, Math.min(120, parseInt(heightInput.value) || 60));
-    });
-    shapeSelect.addEventListener('change', () => {
-      shape = shapeSelect.value;
-    });
-    waveShapeSelect.addEventListener('change', () => {
-      waveShape = waveShapeSelect.value;
-    });
+    // Remove controls and dropdowns, set shape to 'diamond' by default
+    let shape = 'diamond';
+    let waveShape = 'sine'; // Keep default for wave effect
 
     // Center the ASCII art
     asciiElement.style.position = 'absolute';
@@ -103,17 +59,9 @@
       const cy = height / 2;
       const dx = x - cx + 0.5;
       const dy = y - cy + 0.5;
-      if (shape === 'circle') {
-        const r = Math.min(width, height) * 0.45;
-        return dx * dx + dy * dy <= r * r;
-      } else if (shape === 'square') {
-        const s = Math.min(width, height) * 0.9 / 2;
-        return Math.abs(dx) <= s && Math.abs(dy) <= s;
-      } else if (shape === 'diamond') {
-        const d = Math.min(width, height) * 0.65 / 2;
-        return Math.abs(dx) + Math.abs(dy) <= d;
-      }
-      return true; // 'none' shape
+      // Only diamond shape
+      const d = Math.min(width, height) * 0.65 / 2;
+      return Math.abs(dx) + Math.abs(dy) <= d;
     }
 
     function applyWaveShape(val) {
@@ -207,16 +155,6 @@
         Array.from({ length: width }, () => getRandomChar())
       );
     }
-
-    // Reinitialize prevGrid when size changes
-    widthInput.addEventListener('input', () => {
-      width = Math.max(10, Math.min(300, parseInt(widthInput.value) || 150));
-      initPrevGrid();
-    });
-    heightInput.addEventListener('input', () => {
-      height = Math.max(5, Math.min(120, parseInt(heightInput.value) || 60));
-      initPrevGrid();
-    });
 
     initPrevGrid();
 
