@@ -146,13 +146,7 @@
       for (let y = 0; y < height; y++) {
         frame += grid[y].join("") + "\n";
       }
-      asciiElement.textContent = frame + "\n\n" +
-        "   _____ ____  __  __ ___ _   _ ___   ____   ___   ___  _   _  _   _   ___   ___  _   _ \n" +
-        "  / ____/ __ \\|  \\/  |_ _| \\ | |_ _| / ___| / _ \\ / _ \\| | | || | | | / _ \\ / _ \\| | | |\n" +
-        " | |   | |  | | |\\/| || ||  \\| || |  | |    | | | | | | | | | || |_| || | | | | | | | | |\n" +
-        " | |___| |__| | |  | || || |\\  || |  | |___ | |_| | |_| | |_| ||  _  || |_| | |_| | |_| | |_|\n" +
-        "  \\____\\____/|_|  |_|___|_| \\_|___|  \\____| \\___/ \\___/ \\___/ |_| |_| \\___/ \\___/ \\___/ \\___/\n" +
-        "\n\n";
+      asciiElement.textContent = frame;
     }
 
     // Initialize prevGrid with random chars
@@ -175,5 +169,10 @@
     }
     requestAnimationFrame(animate);
   </script>
+
+  <!-- Monospace text box under the ASCII art -->
+  <div style="position:absolute; left:50%; top:calc(50% + 220px); transform:translateX(-50%); color:white; font-family:monospace; font-size:2em; letter-spacing:0.08em; text-align:center; background:rgba(0,0,0,0.7); padding:16px 32px; border-radius:10px; box-shadow:0 2px 12px #0008;">
+    COMING SOON
+  </div>
 </body>
 </html>
